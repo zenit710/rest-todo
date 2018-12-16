@@ -2,8 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
-use App\Repository\CategoryRepository;
+use App\Model\Service\CategoryServiceInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
@@ -17,17 +16,17 @@ use Symfony\Component\HttpFoundation\Response;
 class CategoryController extends FOSRestController
 {
     /**
-     * @var CategoryRepository
+     * @var CategoryServiceInterface
      */
-    private $categoryRepository;
+    private $categoryService;
 
     /**
      * CategoryController constructor.
-     * @param CategoryRepository $categoryRepository
+     * @param CategoryServiceInterface $categoryService
      */
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(CategoryServiceInterface $categoryService)
     {
-        $this->categoryRepository = $categoryRepository;
+        $this->categoryService = $categoryService;
     }
 
     /**
@@ -37,7 +36,7 @@ class CategoryController extends FOSRestController
      */
     public function getCategory(int $categoryId): View
     {
-        $category = $this->categoryRepository->find($categoryId);
+        $category = $this->categoryService->find($categoryId);
 
         return new View($category, Response::HTTP_OK);
     }
@@ -46,16 +45,10 @@ class CategoryController extends FOSRestController
      * @Rest\Delete("categories/{categoryId}")
      * @param int $categoryId
      * @return View
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function deleteCategory(int $categoryId): View
     {
-        $category = $this->categoryRepository->find($categoryId);
-
-        if ($category) {
-            $this->categoryRepository->delete($category);
-        }
+        $this->categoryService->delete($categoryId);
 
         return new View([], Response::HTTP_NO_CONTENT);
     }
@@ -64,15 +57,12 @@ class CategoryController extends FOSRestController
      * @Rest\Post("/categories")
      * @param Request $request
      * @return View
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function postCategory(Request $request): View
     {
-        $category = new Category();
-        $category->setName($request->get('name'));
-
-        $this->categoryRepository->save($category);
+        $category = $this->categoryService->add([
+            'name' => $request->get('name'),
+        ]);
 
         return new View($category, Response::HTTP_CREATED);
     }
@@ -82,18 +72,12 @@ class CategoryController extends FOSRestController
      * @param int $categoryId
      * @param Request $request
      * @return View
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function putCategory(int $categoryId, Request $request): View
     {
-        $category = $this->categoryRepository->find($categoryId);
-
-        if ($category) {
-            $category->setName($request->get('name'));
-
-            $this->categoryRepository->save($category);
-        }
+        $category = $this->categoryService->update($categoryId, [
+            'name' => $request->get('name'),
+        ]);
 
         return new View($category, Response::HTTP_OK);
     }

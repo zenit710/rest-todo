@@ -2,10 +2,11 @@
 
 namespace App\Service;
 
-use App\Entity\Task;
-use App\Factory\TaskFactoryInterface;
-use App\Repository\TaskRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Model\Factory\TaskFactoryInterface;
+use App\Model\Repository\TaskRepositoryInterface;
+use App\Model\Service\TaskServiceInterface;
+use App\Model\Task;
+use Doctrine\ORM\EntityNotFoundException;
 
 /**
  * Class TaskService
@@ -14,14 +15,9 @@ use Doctrine\ORM\EntityManagerInterface;
 class TaskService implements TaskServiceInterface
 {
     /**
-     * @var TaskRepository
+     * @var TaskRepositoryInterface
      */
     private $taskRepository;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
 
     /**
      * @var TaskFactoryInterface
@@ -30,17 +26,12 @@ class TaskService implements TaskServiceInterface
 
     /**
      * TaskService constructor.
-     * @param TaskRepository $taskRepository
-     * @param EntityManagerInterface $entityManager
+     * @param TaskRepositoryInterface $taskRepository
      * @param TaskFactoryInterface $taskFactory
      */
-    public function __construct(
-        TaskRepository $taskRepository,
-        EntityManagerInterface $entityManager,
-        TaskFactoryInterface $taskFactory)
+    public function __construct(TaskRepositoryInterface $taskRepository, TaskFactoryInterface $taskFactory)
     {
         $this->taskRepository = $taskRepository;
-        $this->entityManager = $entityManager;
         $this->taskFactory = $taskFactory;
     }
 
@@ -51,8 +42,7 @@ class TaskService implements TaskServiceInterface
     {
         $task = $this->taskFactory->create($data);
 
-        $this->entityManager->persist($task);
-        $this->entityManager->flush();
+        $this->taskRepository->save($task);
 
         return $task;
     }
@@ -60,10 +50,11 @@ class TaskService implements TaskServiceInterface
     /**
      * @inheritdoc
      */
-    public function delete(Task $task)
+    public function delete(int $taskId)
     {
-        $this->entityManager->remove($task);
-        $this->entityManager->flush();
+        $task = $this->find($taskId);
+
+        $this->taskRepository->delete($task);
     }
 
     /**
@@ -71,21 +62,29 @@ class TaskService implements TaskServiceInterface
      */
     public function find(int $taskId)
     {
-        return $this->taskRepository->find($taskId);
+        $task = $this->taskRepository->findById($taskId);
+
+        if (!$task) {
+            throw new EntityNotFoundException('Task with id ' . $taskId . ' does not exist!');
+        }
+
+        return $task;
     }
 
     /**
      * @inheritdoc
      */
-    public function update(Task $task, array $data): Task
+    public function update(int $taskId, array $data): Task
     {
+        $task = $this->find($taskId);
+
         $updatedTask = $this->taskFactory->create($data);
         $task->setName($updatedTask->getName());
         $task->setCategory($updatedTask->getCategory());
         $task->setDueDate($updatedTask->getDueDate());
-        $task->setStatus($updatedTask->getStatus());
+        $task->setStatus($data['status']);
 
-        $this->entityManager->flush();
+        $this->taskRepository->save($task);
 
         return $task;
     }

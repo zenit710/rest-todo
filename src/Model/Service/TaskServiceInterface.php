@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Service;
+namespace App\Model\Service;
 
-use App\Entity\Task;
+use App\Model\Task;
 
 /**
  * Interface TaskServiceInterface
- * @package App\Service
+ * @package App\Model\Service
  */
 interface TaskServiceInterface
 {
@@ -17,9 +17,9 @@ interface TaskServiceInterface
     public function add(array $data): Task;
 
     /**
-     * @param Task $task
+     * @param int $taskId
      */
-    public function delete(Task $task);
+    public function delete(int $taskId);
 
     /**
      * @param int $taskId
@@ -28,9 +28,9 @@ interface TaskServiceInterface
     public function find(int $taskId);
 
     /**
-     * @param Task $task
+     * @param int $taskId
      * @param array $data
      * @return Task
      */
-    public function update(Task $task, array $data): Task;
+    public function update(int $taskId, array $data): Task;
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Factory;
+namespace App\Model\Factory;
 
-use App\Entity\Task;
+use App\Model\Task;
 
 /**
  * Interface TaskFactoryInterface
- * @package App\Factory
+ * @package App\Model\Factory
  */
 interface TaskFactoryInterface
 {

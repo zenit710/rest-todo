@@ -2,8 +2,9 @@
 
 namespace App\Factory;
 
-use App\Entity\Task;
-use App\Repository\CategoryRepository;
+use App\Model\Factory\TaskFactoryInterface;
+use App\Model\Service\CategoryServiceInterface;
+use App\Model\Task;
 
 /**
  * Class TaskFactory
@@ -12,17 +13,17 @@ use App\Repository\CategoryRepository;
 class TaskFactory implements TaskFactoryInterface
 {
     /**
-     * @var CategoryRepository
+     * @var CategoryServiceInterface
      */
-    private $categoryRepository;
+    private $categoryService;
 
     /**
      * TaskFactory constructor.
-     * @param CategoryRepository $categoryRepository
+     * @param CategoryServiceInterface $categoryService
      */
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(CategoryServiceInterface $categoryService)
     {
-        $this->categoryRepository = $categoryRepository;
+        $this->categoryService = $categoryService;
     }
 
     /**
@@ -33,7 +34,7 @@ class TaskFactory implements TaskFactoryInterface
         $task = new Task();
 
         $task->setName($data['name']);
-        $task->setCategory($this->categoryRepository->find($data['categoryId']));
+        $task->setCategory($this->categoryService->find($data['categoryId']));
         $task->setDueDate(new \DateTime($data['dueDate']));
 
         return $task;

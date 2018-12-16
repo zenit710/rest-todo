@@ -2,7 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Category;
+use App\Model\Category;
+use App\Model\Repository\CategoryRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -12,7 +13,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Category[]    findAll()
  * @method Category[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class CategoryRepository extends ServiceEntityRepository
+class CategoryRepository extends ServiceEntityRepository implements CategoryRepositoryInterface
 {
     /**
      * CategoryRepository constructor.
@@ -32,6 +33,14 @@ class CategoryRepository extends ServiceEntityRepository
     {
         $this->getEntityManager()->remove($category);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function findById(int $categoryId): ?Category
+    {
+        return $this->find($categoryId);
     }
 
     /**

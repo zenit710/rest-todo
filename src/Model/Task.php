@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace App\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,7 +25,7 @@ class Task
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Category")
+     * @ORM\ManyToOne(targetEntity="App\Model\Category")
      * @ORM\JoinColumn(nullable=false)
      */
     private $category;

@@ -2,8 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Task;
-use App\Service\TaskServiceInterface;
+use App\Model\Service\TaskServiceInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
@@ -49,11 +48,7 @@ class TaskController extends FOSRestController
      */
     public function deleteTask(int $taskId): View
     {
-        $task = $this->taskService->find($taskId);
-
-        if ($task) {
-            $this->taskService->delete($task);
-        }
+        $this->taskService->delete($taskId);
 
         return new View([], Response::HTTP_NO_CONTENT);
     }
@@ -82,13 +77,11 @@ class TaskController extends FOSRestController
      */
     public function postTask(Request $request): View
     {
-        $data = [
+        $task = $this->taskService->add([
             'name' => $request->get('name'),
             'categoryId' => $request->get('categoryId'),
             'dueDate' => $request->get('dueDate'),
-        ];
-
-        $task = $this->taskService->add($data);
+        ]);
 
         return new View($task, Response::HTTP_CREATED);
     }
@@ -101,18 +94,12 @@ class TaskController extends FOSRestController
      */
     public function putTask(int $taskId, Request $request): View
     {
-        $task = $this->taskService->find($taskId);
-
-        if ($task) {
-            $data = [
-                'name' => $request->get('name'),
-                'categoryId' => $request->get('categoryId'),
-                'dueDate' => $request->get('dueDate'),
-                'status' => $request->get('status'),
-            ];
-
-            $this->taskService->update($task, $data);
-        }
+        $task = $this->taskService->update($taskId, [
+            'name' => $request->get('name'),
+            'categoryId' => $request->get('categoryId'),
+            'dueDate' => $request->get('dueDate'),
+            'status' => $request->get('status'),
+        ]);
 
         return new View($task, Response::HTTP_OK);
     }
