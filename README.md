@@ -22,3 +22,22 @@ You can create, read, update and delete categories. To do that you have to:
 * read by sending `GET` request to `/categories/{id}`
 * update by sending `PUT` request to `/categories/{id}` with name in body
 * delete by sending `DELETE` request to `/categories/{id}`
+
+Name should be string.
+
+## Tasks
+
+You can create, read, update and delete tasks. You can also set task as done or as to do.
+
+* create by sending `POST` request to `/tasks` with name, categoryId and dueDate in body
+* read by sending `GET` request to `/tasks/{id}`
+* update by sending `PUT` request to `/tasks/{id}` with name, categoryId, dueDate and status in body
+* delete by sending `DELETE` request to `/tasks/{id}`
+* mark as done/to do by sending `PATCH` request to `/tasks/{id}` with status in body;
+
+Parameters type should be as below:
+
+* name - string
+* categoryId - int
+* dueDate - DateTime
+* status - boolean

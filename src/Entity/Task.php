@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Task
 {
+    const STATUS_DONE = true;
+    const STATUS_TO_DO = false;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -33,14 +36,14 @@ class Task
     private $dueDate;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $doneDate;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $status;
+    private $status = false;
 
     public function getId(): ?int
     {
@@ -102,8 +105,24 @@ class Task
 
     public function setStatus(bool $status): self
     {
-        $this->status = $status;
+        if (self::STATUS_DONE == $status) {
+            $this->markAsDone();
+        } else {
+            $this->markAsToDo();
+        }
 
         return $this;
+    }
+
+    private function markAsDone()
+    {
+        $this->status = self::STATUS_DONE;
+        $this->doneDate = new \DateTime();
+    }
+
+    private function markAsToDo()
+    {
+        $this->status = self::STATUS_TO_DO;
+        $this->doneDate = null;
     }
 }
