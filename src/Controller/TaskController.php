@@ -72,7 +72,7 @@ class TaskController extends FOSRestController
             $task->setStatus($request->get('status'));
         }
 
-        return new View($task, Response::HTTP_CREATED);
+        return new View($task, Response::HTTP_OK);
     }
 
     /**

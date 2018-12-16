@@ -71,6 +71,7 @@ class CategoryController extends FOSRestController
     {
         $category = new Category();
         $category->setName($request->get('name'));
+
         $this->categoryRepository->save($category);
 
         return new View($category, Response::HTTP_CREATED);
@@ -90,6 +91,7 @@ class CategoryController extends FOSRestController
 
         if ($category) {
             $category->setName($request->get('name'));
+
             $this->categoryRepository->save($category);
         }
 
