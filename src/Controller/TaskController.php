@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Task;
-use App\Repository\CategoryRepository;
-use App\Repository\TaskRepository;
+use App\Service\TaskServiceInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
@@ -18,24 +17,17 @@ use Symfony\Component\HttpFoundation\Response;
 class TaskController extends FOSRestController
 {
     /**
-     * @var TaskRepository
+     * @var TaskServiceInterface
      */
-    private $taskRepository;
-
-    /**
-     * @var CategoryRepository
-     */
-    private $categoryRepository;
+    private $taskService;
 
     /**
      * TaskController constructor.
-     * @param TaskRepository $taskRepository
-     * @param CategoryRepository $categoryRepository
+     * @param TaskServiceInterface $taskService
      */
-    public function __construct(TaskRepository $taskRepository, CategoryRepository $categoryRepository)
+    public function __construct(TaskServiceInterface $taskService)
     {
-        $this->taskRepository = $taskRepository;
-        $this->categoryRepository = $categoryRepository;
+        $this->taskService = $taskService;
     }
 
     /**
@@ -45,7 +37,7 @@ class TaskController extends FOSRestController
      */
     public function getTask(int $taskId): View
     {
-        $task = $this->taskRepository->find($taskId);
+        $task = $this->taskService->find($taskId);
 
         return new View($task, Response::HTTP_OK);
     }
@@ -54,15 +46,13 @@ class TaskController extends FOSRestController
      * @Rest\Delete("tasks/{taskId}")
      * @param int $taskId
      * @return View
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function deleteTask(int $taskId): View
     {
-        $task = $this->taskRepository->find($taskId);
+        $task = $this->taskService->find($taskId);
 
         if ($task) {
-            $this->taskRepository->delete($task);
+            $this->taskService->delete($task);
         }
 
         return new View([], Response::HTTP_NO_CONTENT);
@@ -76,7 +66,7 @@ class TaskController extends FOSRestController
      */
     public function patchTask(int $taskId, Request $request): View
     {
-        $task = $this->taskRepository->find($taskId);
+        $task = $this->taskService->find($taskId);
 
         if ($task) {
             $task->setStatus($request->get('status'));
@@ -89,20 +79,16 @@ class TaskController extends FOSRestController
      * @Rest\Post("/tasks")
      * @param Request $request
      * @return View
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function postTask(Request $request): View
     {
-        $category = $this->categoryRepository->find($request->get('categoryId'));
+        $data = [
+            'name' => $request->get('name'),
+            'categoryId' => $request->get('categoryId'),
+            'dueDate' => $request->get('dueDate'),
+        ];
 
-        if ($category) {
-            $task = new Task();
-            $task->setName($request->get('name'));
-            $task->setCategory($category);
-            $task->setDueDate(new \DateTime($request->get('dueDate')));
-            $this->taskRepository->save($task);
-        }
+        $task = $this->taskService->add($data);
 
         return new View($task, Response::HTTP_CREATED);
     }
@@ -112,20 +98,20 @@ class TaskController extends FOSRestController
      * @param int $taskId
      * @param Request $request
      * @return View
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function putTask(int $taskId, Request $request): View
     {
-        $task = $this->taskRepository->find($taskId);
-        $category = $this->categoryRepository->find($request->get('categoryId'));
+        $task = $this->taskService->find($taskId);
 
-        if ($task && $category) {
-            $task->setName($request->get('name'));
-            $task->setCategory($category);
-            $task->setDueDate(new \DateTime($request->get('dueDate')));
-            $task->setStatus($request->get('status'));
-            $this->taskRepository->save($task);
+        if ($task) {
+            $data = [
+                'name' => $request->get('name'),
+                'categoryId' => $request->get('categoryId'),
+                'dueDate' => $request->get('dueDate'),
+                'status' => $request->get('status'),
+            ];
+
+            $this->taskService->update($task, $data);
         }
 
         return new View($task, Response::HTTP_OK);

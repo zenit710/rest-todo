@@ -18,26 +18,4 @@ class TaskRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Task::class);
     }
-
-    /**
-     * @param Task $task
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function delete(Task $task): void
-    {
-        $this->getEntityManager()->remove($task);
-        $this->getEntityManager()->flush();
-    }
-
-    /**
-     * @param Task $task
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function save(Task $task): void
-    {
-        $this->getEntityManager()->persist($task);
-        $this->getEntityManager()->flush();
-    }
 }
